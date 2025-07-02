@@ -1,18 +1,41 @@
 {
+  "name": "struct-match",
+  "version": "1.0.0",
+  "description": "A static-analysis library to search for code patterns in JS, with context constraints.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/apoorvsxna/struct-match.git"
+  },
+  "keywords": [
+    "ast",
+    "codemod",
+    "static-analysis",
+    "tree-sitter",
+    "search"
+  ],
+  "author": "Apoorv Saxena <apoorv.sxn@gmail.com>",
+  "license": "GPL",
+
   "dependencies": {
-    "@types/js-yaml": "^4.0.9",
     "js-yaml": "^4.1.0",
     "tree-sitter": "^0.21.1",
-    "tree-sitter-javascript": "^0.23.1",
-    "typescript": "^5.8.3"
+    "tree-sitter-javascript": "^0.23.1"
   },
   "devDependencies": {
+    "typescript": "^5.8.3",
+    "@types/js-yaml": "^4.0.9",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.0.10",
     "jest": "^30.0.3",
     "ts-jest": "^29.4.0"
   },
   "scripts": {
+    "prepublishOnly": "npm run build",
     "build": "npx tsc",
     "test": "jest"
   }
