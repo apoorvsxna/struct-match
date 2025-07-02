@@ -1,8 +1,8 @@
 import { findPatternMatches } from '../src/api';
-import { patternCases } from './cases/pattern-cases'; // Changed import
+import { patternCases } from './cases/pattern-cases';
 
 describe('findPatternMatches', () => {
-  patternCases.forEach(testCase => { // testCase is now strongly typed
+  patternCases.forEach(testCase => {
     it(`should correctly handle: ${testCase.name}`, async () => {
       const matches = await findPatternMatches(testCase.sourceCode, testCase.pattern);
       
