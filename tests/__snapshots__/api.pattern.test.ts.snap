@@ -1,0 +1,193 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`findPatternMatches should correctly handle: Bare Identifier 1`] = `
+[
+  {
+    "matchedText": "y",
+    "metavariables": {},
+  },
+]
+`;
+
+exports[`findPatternMatches should correctly handle: Chained expressions 1`] = `
+[
+  {
+    "matchedText": "req.body.input",
+    "metavariables": {},
+  },
+]
+`;
+
+exports[`findPatternMatches should correctly handle: Chained expressions with metavariables 1`] = `
+[
+  {
+    "matchedText": "req.body.input",
+    "metavariables": {
+      "$X": "req",
+      "$Y": "body",
+      "$Z": "input",
+    },
+  },
+]
+`;
+
+exports[`findPatternMatches should correctly handle: Direct matching 1`] = `
+[
+  {
+    "matchedText": "const x = 5;",
+    "metavariables": {},
+  },
+]
+`;
+
+exports[`findPatternMatches should correctly handle: Metavariable consistency 1`] = `
+[
+  {
+    "matchedText": "const x = x + 5;",
+    "metavariables": {
+      "$A": "x",
+      "$B": "5",
+    },
+  },
+]
+`;
+
+exports[`findPatternMatches should correctly handle: Metavariable matching complex node 1`] = `
+[
+  {
+    "matchedText": "console.log( go(x+5) )",
+    "metavariables": {
+      "$X": "go(x+5)",
+    },
+  },
+]
+`;
+
+exports[`findPatternMatches should correctly handle: Metavariables 1`] = `
+[
+  {
+    "matchedText": "const x = 5;",
+    "metavariables": {
+      "$A": "x",
+    },
+  },
+  {
+    "matchedText": "const y = 5;",
+    "metavariables": {
+      "$A": "y",
+    },
+  },
+]
+`;
+
+exports[`findPatternMatches should correctly handle: Metavariables on both sides 1`] = `
+[
+  {
+    "matchedText": "const x = 5;",
+    "metavariables": {
+      "$A": "x",
+      "$B": "5",
+    },
+  },
+  {
+    "matchedText": "const y = 10;",
+    "metavariables": {
+      "$A": "y",
+      "$B": "10",
+    },
+  },
+]
+`;
+
+exports[`findPatternMatches should correctly handle: Semicolon 1`] = `
+[
+  {
+    "matchedText": "const x = 5;",
+    "metavariables": {},
+  },
+]
+`;
+
+exports[`findPatternMatches should correctly handle: Varying node type due to context 1`] = `
+[
+  {
+    "matchedText": "{
+                        SSL_VERIFYPEER: 0
+                    }",
+    "metavariables": {},
+  },
+]
+`;
+
+exports[`findPatternMatches should correctly handle: Whitespace 1`] = `
+[
+  {
+    "matchedText": "const x=  5;",
+    "metavariables": {
+      "$A": "x",
+      "$B": "5",
+    },
+  },
+]
+`;
+
+exports[`findPatternMatches should correctly handle: Wildcard matching multiple nodes 1`] = `
+[
+  {
+    "matchedText": "function go() {
+                var a = 5;
+                var c = 10;
+                if(c == 2) {
+                    c = c + 1;
+                }
+                console.log("random");
+            }",
+    "metavariables": {
+      "$X": ""random"",
+    },
+  },
+]
+`;
+
+exports[`findPatternMatches should correctly handle: Wildcard matching one node 1`] = `
+[
+  {
+    "matchedText": "function go() {
+                var a = 5;
+                console.log("random");
+            }",
+    "metavariables": {
+      "$X": ""random"",
+    },
+  },
+]
+`;
+
+exports[`findPatternMatches should correctly handle: Wildcard matching zero nodes 1`] = `
+[
+  {
+    "matchedText": "function go() {
+                console.log("random");
+            }",
+    "metavariables": {
+      "$X": ""random"",
+    },
+  },
+]
+`;
+
+exports[`findPatternMatches should correctly handle: Wildcard with nesting 1`] = `
+[
+  {
+    "matchedText": "function go(x) {
+                var a = 5;
+                if(x > a) {
+                    x = x+10;
+                    console.log("yes");
+                }
+                return x;
+            }",
+    "metavariables": {},
+  },
+]
+`;

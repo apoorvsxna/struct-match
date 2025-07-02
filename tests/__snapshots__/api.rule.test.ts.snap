@@ -1,0 +1,114 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`findMatchesByRule should correctly handle: Composite Rule - any 1`] = `
+[
+  {
+    "matchedText": "const x = 5;",
+    "metavariables": {
+      "$X": "x",
+      "$Y": "5",
+    },
+  },
+  {
+    "matchedText": "console.log("random")",
+    "metavariables": {
+      "$X": ""random"",
+    },
+  },
+]
+`;
+
+exports[`findMatchesByRule should correctly handle: Context Specifier - contains (has) 1`] = `
+[
+  {
+    "matchedText": "function go() {
+                console.log("random");
+            }",
+    "metavariables": {
+      "$X": "go",
+    },
+  },
+]
+`;
+
+exports[`findMatchesByRule should correctly handle: Context Specifier - follows 1`] = `
+[
+  {
+    "matchedText": "console.log(x)",
+    "metavariables": {},
+  },
+]
+`;
+
+exports[`findMatchesByRule should correctly handle: Context Specifier - inside 1`] = `
+[
+  {
+    "matchedText": "console.log("random")",
+    "metavariables": {},
+  },
+]
+`;
+
+exports[`findMatchesByRule should correctly handle: Context Specifier - not 1`] = `
+[
+  {
+    "matchedText": "console.log("goodbye")",
+    "metavariables": {},
+  },
+]
+`;
+
+exports[`findMatchesByRule should correctly handle: Context Specifier - precedes 1`] = `
+[
+  {
+    "matchedText": "console.log(x)",
+    "metavariables": {},
+  },
+]
+`;
+
+exports[`findMatchesByRule should correctly handle: Metavariable consistency across context specifiers 1`] = `
+[
+  {
+    "matchedText": "function go() {
+                var text = "random";
+                console.log(text);
+            }",
+    "metavariables": {
+      "$FUNC": "go",
+    },
+  },
+]
+`;
+
+exports[`findMatchesByRule should correctly handle: Multiple context specifiers (nested) 1`] = `
+[
+  {
+    "matchedText": "function go() {
+                var text = "random";
+                console.log(text);
+            }",
+    "metavariables": {
+      "$FUNC": "go",
+    },
+  },
+]
+`;
+
+exports[`findMatchesByRule should correctly handle: Multiple context specifiers (non-nested) 1`] = `
+[
+  {
+    "matchedText": "console.log("random")",
+    "metavariables": {},
+  },
+]
+`;
+
+exports[`findMatchesByRule should correctly handle: Single Pattern, Direct 1`] = `
+[
+  {
+    "matchedText": "const x = 5;",
+    "metavariables": {},
+  },
+]
+`;
