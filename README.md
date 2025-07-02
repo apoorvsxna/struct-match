@@ -40,3 +40,4 @@ const matches = await findMatchesByRule(sourceCode, yamlRule);
 
 console.log(matches);
 ```
+Refer to `RULES-GUIDE.md` for more instructions.
