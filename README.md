@@ -1,12 +1,15 @@
 # struct-match
+
 A library to search for JavaScript code patterns, with context constraints.
 
-# Usage
+## Usage
+
 You can search for code using either a simple string pattern or a more powerful YAML rule.
 
-1. Search using simple patterns
-```
-import { findPatternMatches } from 'struct-match';
+### 1\. Search using simple patterns
+
+```javascript
+import { findByPattern } from 'struct-match';
 
 const sourceCode = `
   const a = 5;
@@ -16,12 +19,13 @@ const sourceCode = `
 
 const pattern = `console.$FUNC($$$)`;
 
-const matches = await findPatternMatches(sourceCode, pattern);
+const matches = await findByPattern(sourceCode, pattern);
 ```
 
-2. Search using YAML rules (comprised of patterns)
-```
-import { findMatchesByRule } from 'struct-match';
+### 2\. Search using YAML rules
+
+```javascript
+import { findByRule } from 'struct-match';
 
 const sourceCode = `
   const a = 5;
@@ -29,15 +33,16 @@ const sourceCode = `
 `;
 
 const yamlRule = `
-- id: sample-rule
-  rule:
-    pattern: console.log($X)
-    follows:
-        pattern: const $X = $$$
+id: sample-rule
+rule:
+  pattern: console.log($X)
+  follows:
+    pattern: const $X = $$$
 `;
 
-const matches = await findMatchesByRule(sourceCode, yamlRule);
+const matches = await findByRule(sourceCode, yamlRule);
 
 console.log(matches);
 ```
-Refer to `RULES-GUIDE.md` for more instructions.
+
+<mark>Refer to `RULES-GUIDE.md` for more instructions.</mark>
