@@ -105,6 +105,32 @@ exports[`findByRule should correctly handle: Metavariable consistency across con
 ]
 `;
 
+exports[`findByRule should correctly handle: Metavariable consistency across context specifiers 2`] = `
+[
+  {
+    "endLine": 5,
+    "matchedText": "function go() {
+          var text = "random";
+          console.log(text);
+      }",
+    "metavariables": {
+      "$FUNC": "go",
+    },
+    "ruleId": "rule1",
+    "startLine": 2,
+  },
+  {
+    "endLine": 4,
+    "matchedText": "console.log(text)",
+    "metavariables": {
+      "$A": "text",
+    },
+    "ruleId": "rule2",
+    "startLine": 4,
+  },
+]
+`;
+
 exports[`findByRule should correctly handle: Multiple context specifiers (nested) 1`] = `
 [
   {
