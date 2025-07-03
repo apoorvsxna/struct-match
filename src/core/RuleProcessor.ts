@@ -44,10 +44,9 @@ export class RuleProcessor {
         const anyMatches = await this.findValidMatches(sourceTree, subPattern);
         candidateMatches.push(...anyMatches);
       }
-    } else {
-      // If a rule is just a container for context, it matches the root initially.
-      candidateMatches = [{ node: sourceTree.rootNode, metavariables: {} }];
     }
+    // If there's no `pattern` or `any`, candidateMatches remains empty.
+    // This is correct, as contextual rules should only filter a set of primary matches.
 
     let matches = candidateMatches.filter(match =>
       this.areMetavarsConsistent(parentMetavars, match.metavariables)
@@ -68,10 +67,10 @@ export class RuleProcessor {
       );
     }
 
-    if (rule.has) {
-        const hasMatches = await this.findValidMatches(sourceTree, rule.has, parentMetavars);
+    if (rule.contains) {
+        const containsMatches = await this.findValidMatches(sourceTree, rule.contains, parentMetavars);
         matches = matches.filter(match => 
-            hasMatches.some(inner => this.isInside(inner.node, match.node))
+            containsMatches.some(inner => this.isInside(inner.node, match.node))
         );
     }
     

@@ -84,7 +84,7 @@ Specifier Description:
 
 `inside` - Inner node within outer
 
-`has` - Outer node wrapping inner
+`contains` - Outer node wrapping inner
 
 `follows` - Appears after
 

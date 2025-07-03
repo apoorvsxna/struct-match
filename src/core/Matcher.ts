@@ -1,13 +1,13 @@
-import Parser from 'tree-sitter';
-import { ASTNode, Metavariable, RulePattern } from '../types';
-import { CodeParser } from './Parser';
+import Parser from "tree-sitter";
+import { ASTNode, Metavariable, RulePattern } from "../types";
+import { CodeParser } from "./Parser";
 
 /**
  * Finds pattern matches in AST using metavariables ($VAR) and wildcards ($$$).
  */
 export class Matcher {
   private parser: CodeParser;
-  private static WILDCARD_SYMBOL = '$$$';
+  private static readonly WILDCARD_SYMBOL = "$$$";
 
   constructor(parser: CodeParser) {
     this.parser = parser;
@@ -18,7 +18,7 @@ export class Matcher {
    */
   public find(
     sourceTree: Parser.Tree,
-    pattern: RulePattern
+    pattern: RulePattern,
   ): { node: ASTNode; metavariables: Metavariable }[] {
     if (!pattern.pattern) {
       return [];
@@ -26,16 +26,27 @@ export class Matcher {
 
     const patternTree = this.parser.parse(pattern.pattern);
     const targetNode = this.getDeepestSingleChild(patternTree.rootNode);
+    const candidateNodes = this.parser.getNodesOfType(
+      sourceTree,
+      targetNode.type,
+    );
 
-    const candidateNodes = this.parser.getNodesOfType(sourceTree, targetNode.type);
+    return this.findMatchesInCandidates(candidateNodes, targetNode);
+  }
 
+  private findMatchesInCandidates(
+    candidateNodes: ASTNode[],
+    targetNode: ASTNode,
+  ): { node: ASTNode; metavariables: Metavariable }[] {
     const matches: { node: ASTNode; metavariables: Metavariable }[] = [];
+
     for (const sourceNode of candidateNodes) {
       const result = this.equalsWithMetavars(sourceNode, targetNode);
       if (result.matches) {
         matches.push({ node: sourceNode, metavariables: result.metavariables });
       }
     }
+
     return matches;
   }
 
@@ -45,7 +56,7 @@ export class Matcher {
   private equalsWithMetavars(
     node1: ASTNode, // source node
     node2: ASTNode, // pattern node
-    currentMetavars: Metavariable = {}
+    currentMetavars: Metavariable = {},
   ): { matches: boolean; metavariables: Metavariable } {
     if (!node1 || !node2) {
       return { matches: false, metavariables: currentMetavars };
@@ -53,63 +64,85 @@ export class Matcher {
 
     // Skip semicolons as they're syntactic sugar
     if (this.isSemicolonNode(node1) || this.isSemicolonNode(node2)) {
-      return {
-        matches: true,
-        metavariables: currentMetavars
-      };
+      return this.createMatchResult(true, currentMetavars);
     }
 
     // Wildcard matches any single node
     if (this.isWildcard(node2)) {
-      return {
-        matches: true,
-        metavariables: currentMetavars
-      };
+      return this.createMatchResult(true, currentMetavars);
     }
 
     // Handle metavariable capture and consistency
     if (this.isMetavariable(node2)) {
-      const metavarName = node2.text;
-      const nodeText = this.getNodeText(node1);
-
-      if (!currentMetavars[metavarName]) {
-        return {
-          matches: true,
-          metavariables: { ...currentMetavars, [metavarName]: nodeText }
-        };
-      } else {
-        return {
-          matches: currentMetavars[metavarName] === nodeText,
-          metavariables: currentMetavars
-        };
-      }
+      return this.handleMetavariableMatch(node1, node2, currentMetavars);
     }
 
     // Member expressions need special handling due to nested structure
     if (this.isMemberExpression(node2)) {
-      if (!this.isMemberExpression(node1)) {
-        return { matches: false, metavariables: currentMetavars };
-      }
-      return this.matchMemberExpression(node1, node2, currentMetavars);
+      return this.handleMemberExpressionMatch(node1, node2, currentMetavars);
     }
 
-    // Normalize property_identifier to identifier for consistent comparison
-    const type1 = node1.type === 'property_identifier' ? 'identifier' : node1.type;
-    const type2 = node2.type === 'property_identifier' ? 'identifier' : node2.type;
-
-    if (type1 !== type2) {
-      return { matches: false, metavariables: currentMetavars };
+    // Compare node types with normalization
+    if (!this.areTypesCompatible(node1, node2)) {
+      return this.createMatchResult(false, currentMetavars);
     }
 
     // For leaves, compare text directly
     if (node1.childCount === 0) {
-      return {
-        matches: node1.text === node2.text,
-        metavariables: currentMetavars
-      };
+      return this.createMatchResult(node1.text === node2.text, currentMetavars);
     }
 
     return this.compareChildren(node1, node2, currentMetavars);
+  }
+
+  private createMatchResult(
+    matches: boolean,
+    metavariables: Metavariable,
+  ): { matches: boolean; metavariables: Metavariable } {
+    return { matches, metavariables };
+  }
+
+  private handleMetavariableMatch(
+    sourceNode: ASTNode,
+    patternNode: ASTNode,
+    currentMetavars: Metavariable,
+  ): { matches: boolean; metavariables: Metavariable } {
+    const metavarName = patternNode.text;
+    const nodeText = this.getNodeText(sourceNode);
+
+    if (!currentMetavars[metavarName]) {
+      return this.createMatchResult(true, {
+        ...currentMetavars,
+        [metavarName]: nodeText,
+      });
+    }
+
+    return this.createMatchResult(
+      currentMetavars[metavarName] === nodeText,
+      currentMetavars,
+    );
+  }
+
+  private handleMemberExpressionMatch(
+    sourceNode: ASTNode,
+    patternNode: ASTNode,
+    currentMetavars: Metavariable,
+  ): { matches: boolean; metavariables: Metavariable } {
+    if (!this.isMemberExpression(sourceNode)) {
+      return this.createMatchResult(false, currentMetavars);
+    }
+
+    return this.matchMemberExpression(sourceNode, patternNode, currentMetavars);
+  }
+
+  private areTypesCompatible(node1: ASTNode, node2: ASTNode): boolean {
+    const type1 = this.normalizeNodeType(node1.type);
+    const type2 = this.normalizeNodeType(node2.type);
+    return type1 === type2;
+  }
+
+  private normalizeNodeType(type: string): string {
+    return type === "property_identifier" ? "identifier" : type;
   }
 
   /**
@@ -118,78 +151,155 @@ export class Matcher {
   private compareChildren(
     node1: ASTNode,
     node2: ASTNode,
-    currentMetavars: Metavariable
+    currentMetavars: Metavariable,
   ): { matches: boolean; metavariables: Metavariable } {
     let currentMetavariables = { ...currentMetavars };
     let sourceIndex = 0;
     let patternIndex = 0;
 
     while (patternIndex < node2.childCount) {
-      // Skip semicolons in both trees
-      while (patternIndex < node2.childCount) {
-        const patternChild = node2.child(patternIndex);
-        if (!patternChild || !this.isSemicolonNode(patternChild)) break;
-        patternIndex++;
-      }
-
-      while (sourceIndex < node1.childCount) {
-        const sourceChild = node1.child(sourceIndex);
-        if (!sourceChild || !this.isSemicolonNode(sourceChild)) break;
-        sourceIndex++;
-      }
+      const indices = this.skipSemicolons(
+        node1,
+        node2,
+        sourceIndex,
+        patternIndex,
+      );
+      sourceIndex = indices.sourceIndex;
+      patternIndex = indices.patternIndex;
 
       if (patternIndex >= node2.childCount) break;
 
       const patternChild = node2.child(patternIndex);
       if (!patternChild) break;
 
-      // Handle wildcard matching
-      if (this.isWildcard(patternChild)) {
-        const result = this.handleWildcardMatch(
-          node1,
-          node2,
-          sourceIndex,
-          patternIndex,
-          currentMetavariables
-        );
-        if (result.matches) return result;
-        return { matches: false, metavariables: currentMetavars };
-      } else {
-        if (sourceIndex >= node1.childCount) {
-          return { matches: false, metavariables: currentMetavars };
-        }
+      const childResult = this.processChildNode(
+        node1,
+        node2,
+        sourceIndex,
+        patternIndex,
+        currentMetavariables,
+        currentMetavars,
+      );
 
-        const sourceChild = node1.child(sourceIndex);
-        if (!sourceChild) {
-          return { matches: false, metavariables: currentMetavars };
-        }
-
-        const childResult = this.equalsWithMetavars(
-          sourceChild,
-          patternChild,
-          currentMetavariables
-        );
-
-        if (!childResult.matches) {
-          return { matches: false, metavariables: currentMetavars };
-        }
-
-        currentMetavariables = childResult.metavariables;
-        sourceIndex++;
-        patternIndex++;
+      if (!childResult.matches) {
+        return this.createMatchResult(false, currentMetavars);
       }
+
+      if (childResult.consumed) {
+        return childResult.result;
+      }
+
+      currentMetavariables = childResult.result.metavariables;
+      sourceIndex++;
+      patternIndex++;
     }
 
-    // Skip trailing semicolons in source
+    sourceIndex = this.skipTrailingSemicolons(node1, sourceIndex);
+
+    return this.createMatchResult(
+      sourceIndex === node1.childCount,
+      currentMetavariables,
+    );
+  }
+
+  private skipSemicolons(
+    node1: ASTNode,
+    node2: ASTNode,
+    sourceIndex: number,
+    patternIndex: number,
+  ): { sourceIndex: number; patternIndex: number } {
+    // Skip semicolons in pattern
+    while (patternIndex < node2.childCount) {
+      const patternChild = node2.child(patternIndex);
+      if (!patternChild || !this.isSemicolonNode(patternChild)) break;
+      patternIndex++;
+    }
+
+    // Skip semicolons in source
     while (sourceIndex < node1.childCount) {
       const sourceChild = node1.child(sourceIndex);
       if (!sourceChild || !this.isSemicolonNode(sourceChild)) break;
       sourceIndex++;
     }
 
+    return { sourceIndex, patternIndex };
+  }
+
+  private skipTrailingSemicolons(node: ASTNode, startIndex: number): number {
+    let index = startIndex;
+    while (index < node.childCount) {
+      const child = node.child(index);
+      if (!child || !this.isSemicolonNode(child)) break;
+      index++;
+    }
+    return index;
+  }
+
+  private processChildNode(
+    node1: ASTNode,
+    node2: ASTNode,
+    sourceIndex: number,
+    patternIndex: number,
+    currentMetavariables: Metavariable,
+    originalMetavars: Metavariable,
+  ): {
+    matches: boolean;
+    result: { matches: boolean; metavariables: Metavariable };
+    consumed: boolean;
+  } {
+    const patternChild = node2.child(patternIndex);
+    if (!patternChild) {
+      return {
+        matches: false,
+        result: this.createMatchResult(false, originalMetavars),
+        consumed: false,
+      };
+    }
+
+    // Handle wildcard matching
+    if (this.isWildcard(patternChild)) {
+      const result = this.handleWildcardMatch(
+        node1,
+        node2,
+        sourceIndex,
+        patternIndex,
+        currentMetavariables,
+      );
+      return {
+        matches: result.matches,
+        result,
+        consumed: true,
+      };
+    }
+
+    // Handle regular child matching
+    if (sourceIndex >= node1.childCount) {
+      return {
+        matches: false,
+        result: this.createMatchResult(false, originalMetavars),
+        consumed: false,
+      };
+    }
+
+    const sourceChild = node1.child(sourceIndex);
+    if (!sourceChild) {
+      return {
+        matches: false,
+        result: this.createMatchResult(false, originalMetavars),
+        consumed: false,
+      };
+    }
+
+    const childResult = this.equalsWithMetavars(
+      sourceChild,
+      patternChild,
+      currentMetavariables,
+    );
+
     return {
-      matches: sourceIndex === node1.childCount,
-      metavariables: currentMetavariables
+      matches: childResult.matches,
+      result: childResult,
+      consumed: false,
     };
   }
 
@@ -201,17 +311,29 @@ export class Matcher {
     node2: ASTNode,
     sourceIndex: number,
     patternIndex: number,
-    currentMetavars: Metavariable
+    currentMetavars: Metavariable,
   ): { matches: boolean; metavariables: Metavariable } {
     const remainingPattern = node2.child(patternIndex + 1);
+
     // Wildcard at end matches all remaining children
     if (!remainingPattern) {
-      return {
-        matches: true,
-        metavariables: currentMetavars
-      };
+      return this.createMatchResult(true, currentMetavars);
     }
 
+    return this.findWildcardMatch(
+      node1,
+      remainingPattern,
+      sourceIndex,
+      currentMetavars,
+    );
+  }
+
+  private findWildcardMatch(
+    node1: ASTNode,
+    remainingPattern: ASTNode,
+    sourceIndex: number,
+    currentMetavars: Metavariable,
+  ): { matches: boolean; metavariables: Metavariable } {
     // Find first source child that matches the post-wildcard pattern
     while (sourceIndex < node1.childCount) {
       const sourceChild = node1.child(sourceIndex);
@@ -228,7 +350,7 @@ export class Matcher {
       const nextResult = this.equalsWithMetavars(
         sourceChild,
         remainingPattern,
-        currentMetavars
+        currentMetavars,
       );
 
       if (nextResult.matches) {
@@ -236,7 +358,8 @@ export class Matcher {
       }
       sourceIndex++;
     }
-    return { matches: false, metavariables: currentMetavars };
+
+    return this.createMatchResult(false, currentMetavars);
   }
 
   /**
@@ -245,129 +368,159 @@ export class Matcher {
   private matchMemberExpression(
     sourceNode: ASTNode,
     patternNode: ASTNode,
-    currentMetavars: Metavariable = {}
+    currentMetavars: Metavariable = {},
   ): { matches: boolean; metavariables: Metavariable } {
     const sourceParts = this.getMemberParts(sourceNode);
     const patternParts = this.getMemberParts(patternNode);
 
     if (!sourceParts || !patternParts) {
-      return { matches: false, metavariables: currentMetavars };
+      return this.createMatchResult(false, currentMetavars);
     }
 
-    let updatedMetavars = { ...currentMetavars };
+    const objectResult = this.matchMemberObject(
+      sourceParts,
+      patternParts,
+      currentMetavars,
+    );
+    if (!objectResult.matches) {
+      return this.createMatchResult(false, currentMetavars);
+    }
 
-    // Handle nested member expressions in object part
+    const propertyResult = this.matchMemberProperty(
+      sourceParts,
+      patternParts,
+      objectResult.metavariables,
+    );
+
+    return propertyResult;
+  }
+
+  private matchMemberObject(
+    sourceParts: { object: ASTNode; property: ASTNode },
+    patternParts: { object: ASTNode; property: ASTNode },
+    currentMetavars: Metavariable,
+  ): { matches: boolean; metavariables: Metavariable } {
     if (this.isMemberExpression(patternParts.object)) {
       if (!this.isMemberExpression(sourceParts.object)) {
-        return { matches: false, metavariables: currentMetavars };
+        return this.createMatchResult(false, currentMetavars);
       }
 
-      const objectResult = this.matchMemberExpression(
+      return this.matchMemberExpression(
         sourceParts.object,
         patternParts.object,
-        updatedMetavars
+        currentMetavars,
       );
-
-      if (!objectResult.matches) {
-        return { matches: false, metavariables: currentMetavars };
-      }
-
-      updatedMetavars = { ...updatedMetavars, ...objectResult.metavariables };
-    } else if (this.isMetavariable(patternParts.object)) {
-      const metavarName = patternParts.object.text;
-      const objectText = this.getNodeText(sourceParts.object);
-
-      if (updatedMetavars[metavarName] && updatedMetavars[metavarName] !== objectText) {
-        return { matches: false, metavariables: currentMetavars };
-      }
-
-      updatedMetavars = { ...updatedMetavars, [metavarName]: objectText };
-    } else {
-      const objectResult = this.equalsWithMetavars(
-        sourceParts.object,
-        patternParts.object,
-        updatedMetavars
-      );
-
-      if (!objectResult.matches) {
-        return { matches: false, metavariables: currentMetavars };
-      }
-
-      updatedMetavars = { ...updatedMetavars, ...objectResult.metavariables };
     }
 
+    if (this.isMetavariable(patternParts.object)) {
+      return this.handleMetavariableInMember(
+        sourceParts.object,
+        patternParts.object,
+        currentMetavars,
+      );
+    }
+
+    return this.equalsWithMetavars(
+      sourceParts.object,
+      patternParts.object,
+      currentMetavars,
+    );
+  }
+
+  private matchMemberProperty(
+    sourceParts: { object: ASTNode; property: ASTNode },
+    patternParts: { object: ASTNode; property: ASTNode },
+    currentMetavars: Metavariable,
+  ): { matches: boolean; metavariables: Metavariable } {
     if (this.isMetavariable(patternParts.property)) {
-      const metavarName = patternParts.property.text;
-      const propertyText = this.getNodeText(sourceParts.property);
-
-      if (updatedMetavars[metavarName] && updatedMetavars[metavarName] !== propertyText) {
-        return { matches: false, metavariables: currentMetavars };
-      }
-
-      updatedMetavars = { ...updatedMetavars, [metavarName]: propertyText };
-    } else {
-      const propertyResult = this.equalsWithMetavars(
+      return this.handleMetavariableInMember(
         sourceParts.property,
         patternParts.property,
-        updatedMetavars
+        currentMetavars,
       );
-
-      if (!propertyResult.matches) {
-        return { matches: false, metavariables: currentMetavars };
-      }
-
-      updatedMetavars = { ...updatedMetavars, ...propertyResult.metavariables };
     }
 
-    return {
-      matches: true,
-      metavariables: updatedMetavars
-    };
+    return this.equalsWithMetavars(
+      sourceParts.property,
+      patternParts.property,
+      currentMetavars,
+    );
+  }
+
+  private handleMetavariableInMember(
+    sourceNode: ASTNode,
+    patternNode: ASTNode,
+    currentMetavars: Metavariable,
+  ): { matches: boolean; metavariables: Metavariable } {
+    const metavarName = patternNode.text;
+    const nodeText = this.getNodeText(sourceNode);
+
+    if (
+      currentMetavars[metavarName] &&
+      currentMetavars[metavarName] !== nodeText
+    ) {
+      return this.createMatchResult(false, currentMetavars);
+    }
+
+    return this.createMatchResult(true, {
+      ...currentMetavars,
+      [metavarName]: nodeText,
+    });
   }
 
   /**
    * Extracts object and property from member expression node.
    */
-  private getMemberParts(node: ASTNode): { object: ASTNode; property: ASTNode } | null {
+  private getMemberParts(
+    node: ASTNode,
+  ): { object: ASTNode; property: ASTNode } | null {
     if (!node || !this.isMemberExpression(node)) {
       return null;
     }
 
     const object = node.child(0);
-    // child(1) is the dot
-    const property = node.child(2);
+    const property = node.child(2); // child(1) is the dot
 
     if (!object || !property) {
       return null;
     }
 
-    let normalizedProperty = property;
-    if (property.type === 'property_identifier') {
-      normalizedProperty = {
-        type: 'identifier',
+    return {
+      object,
+      property: this.normalizePropertyNode(property),
+    };
+  }
+
+  private normalizePropertyNode(property: ASTNode): ASTNode {
+    if (property.type === "property_identifier") {
+      return {
+        type: "identifier",
         text: property.text,
         startIndex: property.startIndex,
         endIndex: property.endIndex,
         childCount: property.childCount,
         child: property.child,
-        isNamed: property.isNamed
+        isNamed: property.isNamed,
       } as ASTNode;
     }
-
-    return { object, property: normalizedProperty };
+    return property;
   }
 
   /**
    * Reconstructs complete text from node and its children.
    */
   private getNodeText(node: ASTNode): string {
-    if (!node) return '';
+    if (!node) return "";
 
     if (node.childCount === 0) {
       return node.text;
     }
 
-    let text = '';
+    return this.buildTextFromChildren(node);
+  }
+
+  private buildTextFromChildren(node: ASTNode): string {
+    let text = "";
     for (let i = 0; i < node.childCount; i++) {
       const child = node.child(i);
       if (child && (child.isNamed || !this.isSemicolonNode(child))) {
@@ -377,6 +530,7 @@ export class Matcher {
     return text;
   }
 
+  // Node type checking methods
   private isWildcard(node: ASTNode | null): boolean {
     return node !== null && node.text.trim() === Matcher.WILDCARD_SYMBOL;
   }
@@ -385,15 +539,15 @@ export class Matcher {
     if (!node || this.isWildcard(node)) {
       return false;
     }
-    return node.type === 'identifier' && node.text.startsWith('$');
+    return node.type === "identifier" && node.text.startsWith("$");
   }
 
   private isSemicolonNode(node: ASTNode | null): boolean {
-    return node !== null && node.type === ';';
+    return node !== null && node.type === ";";
   }
 
   private isMemberExpression(node: ASTNode | null): boolean {
-    return node !== null && node.type === 'member_expression';
+    return node !== null && node.type === "member_expression";
   }
 
   /**

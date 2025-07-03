@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`findPatternMatches should correctly handle: Bare Identifier 1`] = `
+exports[`findByPattern should correctly handle: Bare Identifier 1`] = `
 [
   {
     "matchedText": "y",
@@ -9,7 +9,7 @@ exports[`findPatternMatches should correctly handle: Bare Identifier 1`] = `
 ]
 `;
 
-exports[`findPatternMatches should correctly handle: Chained expressions 1`] = `
+exports[`findByPattern should correctly handle: Chained expressions 1`] = `
 [
   {
     "matchedText": "req.body.input",
@@ -18,7 +18,7 @@ exports[`findPatternMatches should correctly handle: Chained expressions 1`] = `
 ]
 `;
 
-exports[`findPatternMatches should correctly handle: Chained expressions with metavariables 1`] = `
+exports[`findByPattern should correctly handle: Chained expressions with metavariables 1`] = `
 [
   {
     "matchedText": "req.body.input",
@@ -31,7 +31,7 @@ exports[`findPatternMatches should correctly handle: Chained expressions with me
 ]
 `;
 
-exports[`findPatternMatches should correctly handle: Direct matching 1`] = `
+exports[`findByPattern should correctly handle: Direct matching 1`] = `
 [
   {
     "matchedText": "const x = 5;",
@@ -40,7 +40,7 @@ exports[`findPatternMatches should correctly handle: Direct matching 1`] = `
 ]
 `;
 
-exports[`findPatternMatches should correctly handle: Metavariable consistency 1`] = `
+exports[`findByPattern should correctly handle: Metavariable consistency 1`] = `
 [
   {
     "matchedText": "const x = x + 5;",
@@ -52,7 +52,7 @@ exports[`findPatternMatches should correctly handle: Metavariable consistency 1`
 ]
 `;
 
-exports[`findPatternMatches should correctly handle: Metavariable matching complex node 1`] = `
+exports[`findByPattern should correctly handle: Metavariable matching complex node 1`] = `
 [
   {
     "matchedText": "console.log( go(x+5) )",
@@ -63,7 +63,7 @@ exports[`findPatternMatches should correctly handle: Metavariable matching compl
 ]
 `;
 
-exports[`findPatternMatches should correctly handle: Metavariables 1`] = `
+exports[`findByPattern should correctly handle: Metavariables 1`] = `
 [
   {
     "matchedText": "const x = 5;",
@@ -80,7 +80,7 @@ exports[`findPatternMatches should correctly handle: Metavariables 1`] = `
 ]
 `;
 
-exports[`findPatternMatches should correctly handle: Metavariables on both sides 1`] = `
+exports[`findByPattern should correctly handle: Metavariables on both sides 1`] = `
 [
   {
     "matchedText": "const x = 5;",
@@ -99,7 +99,7 @@ exports[`findPatternMatches should correctly handle: Metavariables on both sides
 ]
 `;
 
-exports[`findPatternMatches should correctly handle: Semicolon 1`] = `
+exports[`findByPattern should correctly handle: Semicolon 1`] = `
 [
   {
     "matchedText": "const x = 5;",
@@ -108,7 +108,7 @@ exports[`findPatternMatches should correctly handle: Semicolon 1`] = `
 ]
 `;
 
-exports[`findPatternMatches should correctly handle: Varying node type due to context 1`] = `
+exports[`findByPattern should correctly handle: Varying node type due to context 1`] = `
 [
   {
     "matchedText": "{
@@ -119,7 +119,7 @@ exports[`findPatternMatches should correctly handle: Varying node type due to co
 ]
 `;
 
-exports[`findPatternMatches should correctly handle: Whitespace 1`] = `
+exports[`findByPattern should correctly handle: Whitespace 1`] = `
 [
   {
     "matchedText": "const x=  5;",
@@ -131,7 +131,7 @@ exports[`findPatternMatches should correctly handle: Whitespace 1`] = `
 ]
 `;
 
-exports[`findPatternMatches should correctly handle: Wildcard matching multiple nodes 1`] = `
+exports[`findByPattern should correctly handle: Wildcard matching multiple nodes 1`] = `
 [
   {
     "matchedText": "function go() {
@@ -149,7 +149,7 @@ exports[`findPatternMatches should correctly handle: Wildcard matching multiple 
 ]
 `;
 
-exports[`findPatternMatches should correctly handle: Wildcard matching one node 1`] = `
+exports[`findByPattern should correctly handle: Wildcard matching one node 1`] = `
 [
   {
     "matchedText": "function go() {
@@ -163,7 +163,7 @@ exports[`findPatternMatches should correctly handle: Wildcard matching one node 
 ]
 `;
 
-exports[`findPatternMatches should correctly handle: Wildcard matching zero nodes 1`] = `
+exports[`findByPattern should correctly handle: Wildcard matching zero nodes 1`] = `
 [
   {
     "matchedText": "function go() {
@@ -176,7 +176,7 @@ exports[`findPatternMatches should correctly handle: Wildcard matching zero node
 ]
 `;
 
-exports[`findPatternMatches should correctly handle: Wildcard with nesting 1`] = `
+exports[`findByPattern should correctly handle: Wildcard with nesting 1`] = `
 [
   {
     "matchedText": "function go(x) {

@@ -1,17 +1,20 @@
-import { findMatchesByRule } from '../src/api';
+import { findByRule } from '../src/api'; // Changed import
 import { ruleCases } from './cases/rule-cases';
 import yaml from 'js-yaml';
 
-describe('findMatchesByRule', () => {
+describe('findByRule', () => { // Changed description
   ruleCases.forEach(testCase => {
     it(`should correctly handle: ${testCase.name}`, async () => {
-      // We just need to dump the rule object to a YAML string.
-      const yamlStringToTest = yaml.dump(testCase.rule);
+      const fullRule = yaml.load(testCase.rule) as { rule: object };
+      const rulePatternAsYaml = yaml.dump(fullRule.rule);
 
-      const matches = await findMatchesByRule(testCase.sourceCode, yamlStringToTest);
+      const matches = await findByRule(testCase.sourceCode, testCase.rule); // Changed function call
 
       const simplifiedMatches = matches.map(match => ({
+        ruleId: match.ruleId,
         matchedText: match.matchedText,
+        startLine: match.startLine,
+        endLine: match.endLine,
         metavariables: match.metavariables,
       }));
 

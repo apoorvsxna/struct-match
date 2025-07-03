@@ -1,114 +1,147 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`findMatchesByRule should correctly handle: Composite Rule - any 1`] = `
+exports[`findByRule should correctly handle: Composite Rule - any 1`] = `
 [
   {
+    "endLine": 2,
     "matchedText": "const x = 5;",
     "metavariables": {
       "$X": "x",
       "$Y": "5",
     },
+    "ruleId": "composite-any",
+    "startLine": 2,
   },
   {
+    "endLine": 4,
     "matchedText": "console.log("random")",
     "metavariables": {
       "$X": ""random"",
     },
+    "ruleId": "composite-any",
+    "startLine": 4,
   },
 ]
 `;
 
-exports[`findMatchesByRule should correctly handle: Context Specifier - contains (has) 1`] = `
+exports[`findByRule should correctly handle: Context Specifier - contains 1`] = `
 [
   {
+    "endLine": 4,
     "matchedText": "function go() {
-                console.log("random");
-            }",
+          console.log("random");
+      }",
     "metavariables": {
       "$X": "go",
     },
+    "ruleId": "context-contains",
+    "startLine": 2,
   },
 ]
 `;
 
-exports[`findMatchesByRule should correctly handle: Context Specifier - follows 1`] = `
+exports[`findByRule should correctly handle: Context Specifier - follows 1`] = `
 [
   {
+    "endLine": 4,
     "matchedText": "console.log(x)",
     "metavariables": {},
+    "ruleId": "context-follows",
+    "startLine": 4,
   },
 ]
 `;
 
-exports[`findMatchesByRule should correctly handle: Context Specifier - inside 1`] = `
+exports[`findByRule should correctly handle: Context Specifier - inside 1`] = `
 [
   {
+    "endLine": 3,
     "matchedText": "console.log("random")",
     "metavariables": {},
+    "ruleId": "context-inside",
+    "startLine": 3,
   },
 ]
 `;
 
-exports[`findMatchesByRule should correctly handle: Context Specifier - not 1`] = `
+exports[`findByRule should correctly handle: Context Specifier - not 1`] = `
 [
   {
+    "endLine": 2,
     "matchedText": "console.log("goodbye")",
     "metavariables": {},
+    "ruleId": "context-not",
+    "startLine": 2,
   },
 ]
 `;
 
-exports[`findMatchesByRule should correctly handle: Context Specifier - precedes 1`] = `
+exports[`findByRule should correctly handle: Context Specifier - precedes 1`] = `
 [
   {
+    "endLine": 2,
     "matchedText": "console.log(x)",
     "metavariables": {},
+    "ruleId": "context-precedes",
+    "startLine": 2,
   },
 ]
 `;
 
-exports[`findMatchesByRule should correctly handle: Metavariable consistency across context specifiers 1`] = `
+exports[`findByRule should correctly handle: Metavariable consistency across context specifiers 1`] = `
 [
   {
+    "endLine": 5,
     "matchedText": "function go() {
-                var text = "random";
-                console.log(text);
-            }",
+          var text = "random";
+          console.log(text);
+      }",
     "metavariables": {
       "$FUNC": "go",
     },
+    "ruleId": "metavariable-consistency",
+    "startLine": 2,
   },
 ]
 `;
 
-exports[`findMatchesByRule should correctly handle: Multiple context specifiers (nested) 1`] = `
+exports[`findByRule should correctly handle: Multiple context specifiers (nested) 1`] = `
 [
   {
+    "endLine": 5,
     "matchedText": "function go() {
-                var text = "random";
-                console.log(text);
-            }",
+          var text = "random";
+          console.log(text);
+      }",
     "metavariables": {
       "$FUNC": "go",
     },
+    "ruleId": "multiple-specifiers-nested",
+    "startLine": 2,
   },
 ]
 `;
 
-exports[`findMatchesByRule should correctly handle: Multiple context specifiers (non-nested) 1`] = `
+exports[`findByRule should correctly handle: Multiple context specifiers (non-nested) 1`] = `
 [
   {
+    "endLine": 4,
     "matchedText": "console.log("random")",
     "metavariables": {},
+    "ruleId": "multiple-specifiers-non-nested",
+    "startLine": 4,
   },
 ]
 `;
 
-exports[`findMatchesByRule should correctly handle: Single Pattern, Direct 1`] = `
+exports[`findByRule should correctly handle: Single Pattern, Direct 1`] = `
 [
   {
+    "endLine": 2,
     "matchedText": "const x = 5;",
     "metavariables": {},
+    "ruleId": "single-pattern",
+    "startLine": 2,
   },
 ]
 `;
