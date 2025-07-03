@@ -162,4 +162,23 @@ export const ruleCases: RuleTestCase[] = [
             pattern: 'console.log($A)'
     `,
   },
+  {
+    name: 'Metavariable consistency across context specifiers',
+    sourceCode: `
+      function go() {
+          var text = "random";
+          console.log(text);
+      }
+    `,
+    rule: `
+      - id: rule1
+        rule:
+          pattern: 'function $FUNC(){$$$}'
+          contains:
+            pattern: 'var $A = "random"'
+      - id: rule2
+        rule:
+          pattern: 'console.log($A)'
+    `,
+  }
 ];
