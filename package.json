@@ -1,6 +1,6 @@
 {
   "name": "struct-match",
-  "version": "1.0.3",
+  "version": "1.0.2",
   "description": "A static-analysis library to search for code patterns in JS, with context constraints.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
