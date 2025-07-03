@@ -1,6 +1,6 @@
 {
   "name": "struct-match",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A static-analysis library to search for code patterns in JS, with context constraints.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -20,7 +20,6 @@
   ],
   "author": "Apoorv Saxena <apoorv.sxn@gmail.com>",
   "license": "GPL",
-
   "dependencies": {
     "js-yaml": "^4.1.0",
     "tree-sitter": "^0.21.1",
